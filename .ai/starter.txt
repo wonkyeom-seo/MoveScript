@@ -1,0 +1,441 @@
+Build a production-ready web app called "MoveScript" using Next.js (App Router) + TypeScript.
+
+This app is a choreography editor and viewer. It lets users create choreography projects, place people on an infinite whiteboard, manage scenes over a song timeline, animate movement between scenes, and share a viewer-only playback link.
+
+Tech requirements:
+- Next.js latest with App Router
+- TypeScript
+- Tailwind CSS
+- Cloudflare-compatible deployment
+- Firebase Authentication for:
+  - Google sign-in
+  - email/password sign-up and sign-in
+- Supabase for:
+  - PostgreSQL database
+  - Storage for song files
+- Clean, modular architecture
+- Must be stable and actually usable, not just UI mockups
+- Good error handling
+- Good loading and empty states
+- Responsive design for desktop first, but usable on tablet/mobile
+- Persist all edits so reopening on another device shows the same state
+
+Core concept:
+- A project has exactly 1 song
+- A project contains choreography scenes
+- Each scene contains placed people on a whiteboard
+- Users can move people, duplicate previous scenes, assign scene time, and define transitions
+- There is also a viewer page that can be shared by link for playback only
+
+Data model overview:
+- User
+- Project
+- Song
+- Scene
+- PersonInstance in each scene
+- Transition / Motion settings
+- Share link for viewer mode
+
+Main product rules:
+1. A user can sign up, sign in, and sign out reliably.
+2. A project can be created and edited by its owner.
+3. When starting a new project, the user can import one or more scenes from another existing project they own.
+4. Project structure is:
+   Project 1 > Choreography > Scene 1, Scene 2, Scene 3 ...
+5. Each project supports only one song file.
+6. Each scene can contain multiple people placed on a whiteboard.
+7. The whiteboard is effectively infinite.
+8. The whiteboard supports zoom in, zoom out, and pan.
+9. Whiteboard transform state and all choreography data must persist correctly.
+10. On another device, reopening the same project must show the saved result correctly.
+11. Movement of the whiteboard should only happen when:
+   - the user is touching/dragging the whiteboard directly in board-move mode
+   - not while dragging a person normally
+12. People are created using an Add button.
+13. Creation methods:
+   - create a single person
+   - create a grid by rows x columns
+14. Each person shape can be selected from:
+   - circle
+   - rectangle
+   - square
+15. Each person can display either a name or a number inside the shape.
+16. When adding a new scene, support:
+   - blank scene
+   - duplicate previous scene
+17. Each scene has an assigned timestamp or duration related to the song timeline.
+18. A person can:
+   - move to a new position
+   - exit the stage
+   - appear in a scene
+19. Exit direction options should include:
+   - front
+   - back
+   - left
+   - right
+   - custom quick exit feel
+20. Dragging a person sets movement to a new position.
+21. Movement duration can be configured.
+22. Default movement duration = half of that scene’s assigned song time.
+23. Clicking a person opens editing for:
+   - name or number
+   - shape
+   - display mode
+   - appearance/entry state
+   - exit state
+   - motion duration
+24. Viewer mode must support:
+   - play
+   - pause
+   - scene progression playback
+   - shareable link
+25. Shared viewer link should be read-only.
+26. Editor and viewer should be separate routes/pages.
+27. Build sensible extra UX details where unspecified, but do not violate the above rules.
+
+Implement the app with these pages/routes:
+- /auth/sign-in
+- /auth/sign-up
+- /dashboard
+- /projects/new
+- /projects/[projectId]
+- /projects/[projectId]/viewer
+- /share/[shareId]
+
+Main UX requirements:
+
+Authentication:
+- Firebase Auth with Google and email/password
+- Protect private routes
+- If not signed in, redirect to sign-in
+- Create user record in app database after first sign-in if needed
+
+Dashboard:
+- Show current user’s projects
+- Create new project button
+- Delete project
+- Search/filter projects
+- Show song assigned or not
+- Show updated time
+
+Create Project flow:
+- Enter project title
+- Upload one song file
+- Optionally import scenes from another owned project
+- After creation, go to editor
+
+Project Editor:
+Layout idea:
+- Top bar
+  - project title
+  - save status
+  - viewer link/share button
+  - song info
+  - auth/user menu
+- Left sidebar
+  - scene list
+  - add scene
+  - duplicate previous scene
+  - import scene from other project
+- Center
+  - infinite whiteboard canvas/editor
+- Right sidebar
+  - selected person settings
+  - scene timing settings
+  - transition settings
+- Bottom timeline
+  - song progress
+  - scene blocks aligned by time
+  - current playback head
+
+Whiteboard/editor behavior:
+- Infinite workspace feel
+- Pan and zoom
+- Maintain transform smoothly
+- Grid optional but subtle
+- Person items rendered clearly
+- Drag person to move
+- Select person by click
+- Multi-select is optional but nice to have
+- Board-move mode toggle required
+- In board-move mode, drag pans board
+- In normal mode, drag person moves the person
+- Use pointer events carefully to prevent accidental board movement while editing
+- Persist coordinates in world space, not viewport space
+
+People creation:
+- Add person modal/panel
+- Single create:
+  - name or number
+  - shape
+- Grid create:
+  - rows
+  - columns
+  - spacing
+  - default naming/numbering strategy
+  - shape
+- After grid creation, place them in a sensible layout near current viewport center
+
+Scene system:
+- Scene list ordered vertically or horizontally
+- Each scene has:
+  - title or default name like Scene 1
+  - order index
+  - assigned song timing data
+- Add scene options:
+  - blank scene
+  - duplicate previous scene
+- Scene duplication should carry person placements and editable state
+- Support importing scenes from another project into current project
+- Imported scene becomes editable inside the current project
+- Scene switching loads that scene’s layout and person states
+
+Timing model:
+- Each project has one song
+- Each scene should have timing data
+- Support at minimum:
+  - start time
+  - duration
+- Display timing in seconds with friendly formatting
+- Default movement duration for a moved person = scene duration / 2
+- Allow overriding per person movement duration
+
+Person state per scene:
+Each person instance in a scene should support:
+- stable identity across scenes when duplicated/imported logically
+- x position
+- y position
+- visible/present or not
+- display text (name or number)
+- display mode
+- shape
+- movement duration
+- entry mode
+- exit mode
+- optional notes
+
+Entry/exit behavior:
+- Person can appear in a scene
+- Person can exit in a direction
+- Viewer should animate/represent these states clearly
+- Exit direction options:
+  - front
+  - back
+  - left
+  - right
+  - custom
+- For custom exit, allow angle/direction preset or a freeform option if simple enough
+
+Viewer mode:
+- Read-only
+- Play choreography against song timing
+- Pause playback
+- Jump between scenes
+- Show people moving according to scene data and movement durations
+- Use scene timing and song timing to drive playback
+- Provide shareable public link
+- Public link must not allow editing
+- Owner can enable/disable share link
+
+Persistence:
+- Auto-save with debounce
+- Explicit save fallback button optional
+- Show save indicator:
+  - saving
+  - saved
+  - error
+- All important edits must persist:
+  - project title
+  - song metadata
+  - scenes
+  - scene order
+  - scene timing
+  - whiteboard person positions
+  - person settings
+  - transitions
+  - share link settings
+
+Database design guidance:
+Use a relational design in Supabase/Postgres.
+
+Suggested tables:
+- users
+  - id
+  - firebase_uid
+  - email
+  - display_name
+  - photo_url
+  - created_at
+  - updated_at
+
+- projects
+  - id
+  - owner_id
+  - title
+  - song_id nullable until uploaded
+  - share_enabled
+  - share_token unique nullable
+  - created_at
+  - updated_at
+
+- songs
+  - id
+  - project_id unique
+  - storage_path
+  - original_filename
+  - mime_type
+  - file_size
+  - duration_seconds
+  - created_at
+
+- scenes
+  - id
+  - project_id
+  - title
+  - order_index
+  - start_time_seconds
+  - duration_seconds
+  - source_scene_id nullable
+  - created_at
+  - updated_at
+
+- character_defs
+  - id
+  - project_id
+  - stable_key
+  - default_label
+  - default_display_mode
+  - default_shape
+  - created_at
+This table represents logical people tracked across scenes.
+
+- scene_people
+  - id
+  - scene_id
+  - character_def_id
+  - x
+  - y
+  - is_present
+  - label_override nullable
+  - display_mode
+  - shape
+  - move_duration_seconds nullable
+  - entry_type nullable
+  - exit_type nullable
+  - exit_direction nullable
+  - notes nullable
+  - created_at
+  - updated_at
+
+Optional:
+- project_import_logs
+- shared_views
+But do not overcomplicate unnecessarily.
+
+Storage:
+- Store uploaded song file in Supabase Storage
+- One song per project
+- Validate file type and size
+- Save metadata in songs table
+- Use signed/public URLs appropriately
+- Make playback reliable
+
+Security requirements:
+- Users may only edit their own projects
+- Shared public links are view-only
+- Enforce access checks in server actions / API layer
+- Do not trust client auth state alone
+- Validate ownership before every write
+- Keep environment secrets secure
+
+Implementation guidance:
+- Use server actions or route handlers where appropriate
+- Use a typed data access layer
+- Use Zod for validation
+- Use React state carefully for editor interactions
+- Separate editor state from persisted state cleanly
+- Avoid fragile monolithic components
+- Use reusable hooks and components
+
+Suggested component breakdown:
+- AuthGuard
+- ProjectList
+- ProjectCard
+- ProjectEditorLayout
+- SceneSidebar
+- SceneItem
+- WhiteboardCanvas
+- WhiteboardToolbar
+- PersonNode
+- PersonInspector
+- SceneTimingPanel
+- PlaybackTimeline
+- ViewerPlayer
+- ShareLinkPanel
+- ImportSceneDialog
+- AddPersonDialog
+- GridCreateForm
+
+Important whiteboard implementation details:
+- Use world coordinates
+- Smooth zoom centered around cursor if feasible
+- Pan offset stored separately
+- Person positions must not drift after zoom/pan
+- Selection states must be clear
+- Pointer interactions must feel reliable
+- Prevent accidental text selection during drag
+- Basic keyboard shortcuts are nice:
+  - delete selected person from scene
+  - duplicate selected scene
+  - zoom in/out
+  - space or toggle for board pan mode if practical
+
+Important scene import behavior:
+- User can choose another owned project
+- Can browse scenes from that project
+- Can import selected scenes into the current project
+- Imported scenes become regular scenes in current project
+- If imported characters are new, create matching character_defs
+- Preserve placements and timing when possible
+
+Important playback behavior:
+- Viewer should animate between scene states in a simple, understandable way
+- Respect scene timing and per-person move duration
+- If a person exits, animate out accordingly
+- If a person appears, animate in accordingly
+- Keep playback stable and not overly complex
+- It is okay to implement a practical simplified animation model as long as it is consistent and useful
+
+Developer experience:
+- Add seed/sample data option for local dev
+- Include setup instructions in README
+- Include env example file
+- Include scripts for development
+- Keep code quality high
+
+Expected deliverables:
+1. Full Next.js app codebase
+2. Firebase Auth integration
+3. Supabase integration for DB + Storage
+4. Protected dashboard and editor
+5. Whiteboard choreography editor
+6. Scene system with duplicate/import
+7. Viewer page and share page
+8. Reasonable styling with Tailwind
+9. README with setup instructions
+10. Database schema / migration files
+
+Also generate:
+- a clean README
+- a SQL schema or migrations
+- example environment variables
+- clear comments only where helpful
+
+Prioritize:
+1. correctness
+2. persistence
+3. editing reliability
+4. usable playback
+5. maintainable code
+
+Do not build a fake prototype. Build an actual working app foundation.
