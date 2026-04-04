@@ -4,6 +4,8 @@ import { importScenesIntoProject } from "@/lib/supabase/project-repository";
 import { z } from "zod";
 import { importSelectionSchema } from "@/lib/validation/project";
 
+export const runtime = "edge";
+
 const schema = z.object({
   imports: z.array(importSelectionSchema).min(1),
 });

@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { requireServerSession } from "@/lib/auth/server";
 import { listProjectsForOwner } from "@/lib/supabase/project-repository";
 
+export const runtime = "edge";
+
 export default async function DashboardPage() {
   const session = await requireServerSession();
   const projects = await listProjectsForOwner(session.userId);

@@ -5,6 +5,8 @@ import { parseJsonBody, jsonError, jsonOk } from "@/lib/api";
 import { createSessionSchema } from "@/lib/validation/auth";
 import { upsertUserFromFirebaseIdentity } from "@/lib/supabase/project-repository";
 
+export const runtime = "edge";
+
 export async function POST(request: NextRequest) {
   try {
     const { idToken } = await parseJsonBody(request, createSessionSchema);

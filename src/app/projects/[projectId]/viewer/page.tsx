@@ -4,6 +4,8 @@ import { requireServerSession } from "@/lib/auth/server";
 import { AppError } from "@/lib/errors";
 import { getProjectSnapshotForOwner } from "@/lib/supabase/project-repository";
 
+export const runtime = "edge";
+
 export default async function OwnerViewerPage({
   params,
 }: {

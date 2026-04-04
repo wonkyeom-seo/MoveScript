@@ -3,6 +3,8 @@ import { createProject } from "@/lib/supabase/project-repository";
 import { createProjectSchema } from "@/lib/validation/project";
 import { jsonError, jsonOk, parseJsonBody, requireApiSession } from "@/lib/api";
 
+export const runtime = "edge";
+
 export async function POST(request: NextRequest) {
   try {
     const session = await requireApiSession(request);

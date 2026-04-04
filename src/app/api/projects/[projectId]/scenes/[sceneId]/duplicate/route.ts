@@ -2,6 +2,8 @@ import { type NextRequest } from "next/server";
 import { duplicateScene } from "@/lib/supabase/project-repository";
 import { jsonError, jsonOk, requireApiSession } from "@/lib/api";
 
+export const runtime = "edge";
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string; sceneId: string }> },

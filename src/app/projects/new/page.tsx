@@ -5,6 +5,8 @@ import { CreateProjectForm } from "@/components/projects/create-project-form";
 import { requireServerSession } from "@/lib/auth/server";
 import { listImportableProjects } from "@/lib/supabase/project-repository";
 
+export const runtime = "edge";
+
 export default async function NewProjectPage() {
   const session = await requireServerSession();
   const importableProjects = await listImportableProjects(session.userId);

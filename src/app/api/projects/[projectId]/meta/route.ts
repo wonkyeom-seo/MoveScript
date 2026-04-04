@@ -3,6 +3,8 @@ import { jsonError, jsonOk, parseJsonBody, requireApiSession } from "@/lib/api";
 import { updateProjectMeta } from "@/lib/supabase/project-repository";
 import { projectMetaSchema } from "@/lib/validation/project";
 
+export const runtime = "edge";
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string }> },

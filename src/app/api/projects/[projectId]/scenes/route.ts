@@ -3,6 +3,8 @@ import { jsonError, jsonOk, parseJsonBody, requireApiSession } from "@/lib/api";
 import { createScene } from "@/lib/supabase/project-repository";
 import { createSceneSchema } from "@/lib/validation/project";
 
+export const runtime = "edge";
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string }> },

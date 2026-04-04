@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Music4, PlayCircle, Users } from "lucide-react";
 import { getOptionalServerSession } from "@/lib/auth/server";
 
+export const runtime = "edge";
+
 const highlights = [
   {
     icon: Users,

@@ -3,6 +3,8 @@ import { jsonError, jsonOk, parseJsonBody, requireApiSession } from "@/lib/api";
 import { toggleProjectShare } from "@/lib/supabase/project-repository";
 import { toggleShareSchema } from "@/lib/validation/project";
 
+export const runtime = "edge";
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string }> },

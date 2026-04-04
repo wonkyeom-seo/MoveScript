@@ -4,6 +4,8 @@ import { DEFAULT_SCENE_DURATION_SECONDS } from "@/lib/constants";
 import { saveSceneSnapshot } from "@/lib/supabase/project-repository";
 import { sceneSnapshotSchema } from "@/lib/validation/project";
 
+export const runtime = "edge";
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string; sceneId: string }> },

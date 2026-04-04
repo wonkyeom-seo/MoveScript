@@ -3,6 +3,8 @@ import { ViewerPlayer } from "@/components/editor/viewer-player";
 import { AppError } from "@/lib/errors";
 import { getProjectSnapshotForShare } from "@/lib/supabase/project-repository";
 
+export const runtime = "edge";
+
 export default async function ShareViewerPage({
   params,
 }: {
