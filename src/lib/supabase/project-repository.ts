@@ -537,7 +537,7 @@ export async function listProjectsForOwner(ownerId: string): Promise<ProjectSumm
   const supabase = getSupabaseAdminClient();
   const { data, error } = await supabase
     .from("projects")
-    .select("id, title, updated_at, share_enabled, songs(original_filename, duration_seconds), scenes(id)")
+    .select("id, title, updated_at, share_enabled, songs!songs_project_id_fkey(original_filename, duration_seconds), scenes(id)")
     .eq("owner_id", ownerId)
     .order("updated_at", { ascending: false });
 
